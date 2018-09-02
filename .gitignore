@@ -1,2 +1,5 @@
 # Ignore all compiled files
 *.class
+
+# Ignore submissions
+*.zip
