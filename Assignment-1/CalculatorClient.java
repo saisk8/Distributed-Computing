@@ -42,10 +42,9 @@ public class CalculatorClient {
 
         // Wait for reception of service and display the result to the user
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-        if (!"quit".equals(operation.trim())) {
-            clientSocket.receive(receivePacket);
-            System.out.println("Reply from server: \n" + new String(receivePacket.getData()));
-        }
+        // Receive response
+        clientSocket.receive(receivePacket);
+        System.out.println("Reply from server: \n" + new String(receivePacket.getData()));
 
         // Close socket
         clientSocket.close();
