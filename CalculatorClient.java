@@ -12,15 +12,17 @@ public class CalculatorClient {
 
     // String to help the user undertsand the usage...
     public static final String INFO = "This is a client that is able to connect to a server running on localhost at port 3000.\n"
-            + "The client is able to request the server to perform basic arithematic operations namely: "
-            + " Addition, Substraction, Multiplication, and Division.\n The way to request those operations is as follows: \n"
-            + "Addition: ADD operand1,operand2 \n" + "Substraction: SUB operand1,operand2 \n"
-            + "Multiplication: MUL operand1,operand2 \n" + "Division: DIV operand1,operand2 \n"
+            + "The client is able to request the server to perform basic arithematic operations. \n"
+            + "The way to request those operations is as follows: \n" + "1. Addition: ADD operand1 operand2 \n"
+            + "2. Substraction: SUB operand1 operand2 \n" + "3. Multiplication: MUL operand1 operand2 \n"
+            + "4. Division: DIV operand1 operand2 \n"
             + "The operation performed is: operand 1 [operation(+|-|*|/)] opearnd 2\n"
-            + "An example valid request: SUB: 17.6,9.6\n To stop, send 'QUIT' as the request\n"
+            + "An example valid request: SUB: 17.6 9.6\n To stop, send 'quit' as the request\n"
             + "\n\n\nEnter your request: ";
 
     public static void main(String[] args) throws UnknownHostException, IOException {
+        // Print info
+        System.out.println(INFO);
         // Get operation and operands
         BufferedReader inputFromUser = new BufferedReader(new InputStreamReader(System.in));
         String operation = inputFromUser.readLine();
@@ -40,7 +42,6 @@ public class CalculatorClient {
 
         // Wait for reception of service and display the result to the user
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-        System.out.println(operation);
         if (!"quit".equals(operation.trim())) {
             clientSocket.receive(receivePacket);
             System.out.println("Reply from server: \n" + new String(receivePacket.getData()));
