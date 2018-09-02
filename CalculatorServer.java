@@ -18,7 +18,7 @@ public class CalculatorServer {
     public static void main(String[] args) throws IOException, InterruptedException {
         // Create server socket
         DatagramSocket serverSocket = new DatagramSocket(SERVER_PORT_NO);
-        System.out.println("Server listening at " + SERVER_PORT_NO);
+        System.out.println("Server listening at " + SERVER_PORT_NO + "...");
         byte[] receiveData = new byte[1024];
         byte[] sendData = new byte[1024];
 
@@ -26,6 +26,7 @@ public class CalculatorServer {
         // client...
         while (true) {
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            System.out.println("Waiting to receive a request...");
             serverSocket.receive(receivePacket);
             String request = new String(receivePacket.getData());
             System.out.println("RECEIVED: " + request);
@@ -56,11 +57,8 @@ public class CalculatorServer {
         // Split the request string in tokens using the split method...
         String[] tokens = request.split(" ");
 
-        // Seperate operand 1 and operand 2
-        String[] operands = tokens[1].split(",");
-
         // Check the validity of the request
-        if (tokens.length != 2 || operands.length != 2) {
+        if (tokens.length != 3) {
             socket.close();
             return "Error: Invalid command";
         }
@@ -69,9 +67,8 @@ public class CalculatorServer {
 
         // Perform the necessary computation
         try {
-            Double operand1 = Double.valueOf(operands[0].trim());
-            Double operand2 = Double.valueOf(operands[1].trim());
-
+            Double operand1 = Double.valueOf(tokens[1].trim());
+            Double operand2 = Double.valueOf(tokens[2].trim());
             double result = 0;
             OPERATOR op = OPERATOR.valueOf(operator.toUpperCase());
             switch (op) {
