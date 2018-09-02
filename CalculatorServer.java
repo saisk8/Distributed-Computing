@@ -1,72 +1,55 @@
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.DatagramPacket;
+import java.io.BufferedReader;
+import java.net.DatagramSocket;
 
-/**
- * Support add, subtraction, multiplication, division
- * 
- * @author hluu
- *
- */
 public class CalculatorServer {
     enum OPERATOR {
-        ADD, SUB, MULT, DIV
+        ADD, SUB, MUL, DIV
     };
 
     public static final int PORT_NO = 3000;
 
-    /**
-     * @param args
-     * @throws IOException
-     * @throws InterruptedException
-     */
     public static void main(String[] args) throws IOException, InterruptedException {
-
-        ServerSocket serverSocket = new ServerSocket(PORT_NO);
-        System.out.println("... Server is accepting request now");
-
+        DatagramSocket serverSocket = new DatagramSocket(PORT_NO);
+        byte[] receiveData = new byte[1024];
+        byte[] sendData = new byte[1024];
         while (true) {
-            Socket socket = serverSocket.accept();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String line = reader.readLine();
-
-            System.out.println("Request: " + line);
-
-            if (line.trim().startsWith("quit")) {
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            serverSocket.receive(receivePacket);
+            String request = new String(receivePacket.getData());
+            System.out.println("RECEIVED: " + request);
+            InetAddress IPAddress = receivePacket.getAddress();
+            int port = receivePacket.getPort();
+            if (request.trim().startsWith("quit")) {
                 System.out.println("Server shutting down ...");
-                socket.close();
+                byte[] bye = new String("Good bye!").getBytes();
+                DatagramPacket goodByePacket = new DatagramPacket(bye, bye.length, IPAddress, port);
+                serverSocket.send(goodByePacket);
+                serverSocket.close();
                 break;
             } else {
-                System.out.println(line);
-                processRequest(socket, line);
+                sendData = processRequest(serverSocket, request).getBytes();
             }
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+            serverSocket.send(sendPacket);
+            System.out.println("Result computed and sent");
         }
-
-        System.out.println("... closing server socket ...");
-        serverSocket.close();
     }
 
-    private static void processRequest(Socket socket, String line) throws IOException, InterruptedException {
-        PrintWriter pw = new PrintWriter(socket.getOutputStream());
+    private static String processRequest(DatagramSocket socket, String request)
+            throws IOException, InterruptedException {
 
-        String[] tokens = line.split(" ");
-
-        if (tokens.length != 2) {
-            pw.println("invalid command: " + line);
-            socket.close();
-            return;
-        }
-
+        String[] tokens = request.split(" ");
         String[] operands = tokens[1].split(",");
 
-        if (operands.length != 2) {
-            pw.println("invalid command: " + line);
+        if (tokens.length != 2 || operands.length != 2) {
             socket.close();
-            return;
+            return "Error: Invalid command";
         }
 
         String operator = tokens[0].trim();
@@ -74,40 +57,34 @@ public class CalculatorServer {
         try {
             Double operand1 = Double.valueOf(operands[0].trim());
             Double operand2 = Double.valueOf(operands[1].trim());
-            System.out.println(operand1);
-            System.out.println(operand2);
 
             double result = 0;
             OPERATOR op = OPERATOR.valueOf(operator.toUpperCase());
             switch (op) {
             case ADD:
+                System.out.println("Operation to be performed: " + operand1 + " + " + operand2);
                 result = operand1 + operand2;
                 break;
             case SUB:
-                System.out.println("Entering SUB");
+                System.out.println("Operation to be performed: " + operand1 + " - " + operand2);
                 result = operand1 - operand2;
                 break;
-            case MULT:
+            case MUL:
+                System.out.println("Operation to be performed: " + operand1 + " * " + operand2);
                 result = operand1 * operand2;
                 break;
             case DIV:
+                System.out.println("Operation to be performed: " + operand1 + " / " + operand2);
                 result = operand1 / operand2;
                 break;
             default:
-                pw.println("invalid operand: " + line);
-                pw.flush();
-                socket.close();
-                return;
+                System.out.println("Invalid Operation: " + request);
+                break;
             }
-
-            System.out.println("send back result: " + result);
-            pw.println(result);
+            return Double.toString(result);
         } catch (NumberFormatException nfe) {
-            pw.println("invalid operand: " + line);
+            System.out.println("Invalid operation: " + request);
         }
-
-        pw.flush();
-        socket.close();
+        return "Request could not be processed";
     }
-
 }
