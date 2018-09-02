@@ -17,26 +17,36 @@ public class CalculatorClient {
             + "Addition: ADD operand1,operand2 \n" + "Substraction: SUB operand1,operand2 \n"
             + "Multiplication: MUL operand1,operand2 \n" + "Division: DIV operand1,operand2 \n"
             + "The operation performed is: operand 1 [operation(+|-|*|/)] opearnd 2\n"
-            + "An example valid request: SUB: 17.6,9.6\n" + "\n\n\nEnter your request: ";
+            + "An example valid request: SUB: 17.6,9.6\n To stop, send 'QUIT' as the request\n"
+            + "\n\n\nEnter your request: ";
 
     public static void main(String[] args) throws UnknownHostException, IOException {
         // Get operation and operands
         BufferedReader inputFromUser = new BufferedReader(new InputStreamReader(System.in));
         String operation = inputFromUser.readLine();
+
+        // Create a client socket
         DatagramSocket clientSocket = new DatagramSocket();
         InetAddress IPAddress = InetAddress.getByName("localhost");
+
+        // Creta a DatagramPacket object and feed it with the server's IP and Port
         byte[] sendData = new byte[1024];
         byte[] receiveData = new byte[1024];
         sendData = operation.getBytes();
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, SERVER_PORT_NUMBER);
+
+        // Send request
         clientSocket.send(sendPacket);
+
+        // Wait for reception of service and display the result to the user
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         System.out.println(operation);
         if (!"quit".equals(operation.trim())) {
             clientSocket.receive(receivePacket);
             System.out.println("Reply from server: \n" + new String(receivePacket.getData()));
         }
+
+        // Close socket
         clientSocket.close();
     }
-
 }
