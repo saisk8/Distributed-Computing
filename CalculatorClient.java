@@ -1,43 +1,42 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.net.UnknownHostException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 public class CalculatorClient {
+    // Sever port number
+    public static final int SERVER_PORT_NUMBER = 3000;
 
-    /**
-     * @param args
-     * @throws IOException
-     * @throws UnknownHostException
-     */
+    // String to help the user undertsand the usage...
+    public static final String INFO = "This is a client that is able to connect to a server running on localhost at port 3000.\n"
+            + "The client is able to request the server to perform basic arithematic operations namely: "
+            + " Addition, Substraction, Multiplication, and Division.\n The way to request those operations is as follows: \n"
+            + "Addition: ADD operand1,operand2 \n" + "Substraction: SUB operand1,operand2 \n"
+            + "Multiplication: MUL operand1,operand2 \n" + "Division: DIV operand1,operand2 \n"
+            + "The operation performed is: operand 1 [operation(+|-|*|/)] opearnd 2\n"
+            + "An example valid request: SUB: 17.6,9.6\n" + "\n\n\nEnter your request: ";
+
     public static void main(String[] args) throws UnknownHostException, IOException {
-        String operation = args[0] + " " + args[1];
-
-        // Create a new socket object and names it socket
-        // the constructor requires the name of the computer and the port number to
-        // which you want to connect
-        Socket socket = new Socket("localhost", CalculatorServer.PORT_NO);
-
-        // gets the socket's input stream and opens a BufferedReader on it.
-        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-        // gets the socket's output stream and opens a PrintWriter on it
-        PrintWriter pw = new PrintWriter(socket.getOutputStream());
-
-        pw.println(operation);
-        pw.flush();
-
+        // Get operation and operands
+        BufferedReader inputFromUser = new BufferedReader(new InputStreamReader(System.in));
+        String operation = inputFromUser.readLine();
+        DatagramSocket clientSocket = new DatagramSocket();
+        InetAddress IPAddress = InetAddress.getByName("localhost");
+        byte[] sendData = new byte[1024];
+        byte[] receiveData = new byte[1024];
+        sendData = operation.getBytes();
+        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, SERVER_PORT_NUMBER);
+        clientSocket.send(sendPacket);
+        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+        System.out.println(operation);
         if (!"quit".equals(operation.trim())) {
-            String line = reader.readLine();
-            reader.close();
-            System.out.println("Line 36 in Client");
-            System.out.println("result: " + line);
-            System.out.println("Line 38 in Client");
+            clientSocket.receive(receivePacket);
+            System.out.println("Reply from server: \n" + new String(receivePacket.getData()));
         }
-        socket.close();
-
+        clientSocket.close();
     }
 
 }
