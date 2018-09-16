@@ -62,6 +62,11 @@ public static void main(String[] args) throws UnknownHostException, IOException 
 
         if (receivedResponse) {
                 System.out.println("Reply from server: \n" + new String(receivePacket.getData()));
+                String ack = "Received the result, Thank you... :-)";
+                byte[] ackData = new byte[1024];
+                ackData = ack.getBytes();
+                DatagramPacket ackPacket = new DatagramPacket(ackData, ackData.length, IPAddress, SERVER_PORT_NUMBER);
+                clientSocket.send(ackPacket);
         } else {
                 System.out.println("No data received from the server");
         }
