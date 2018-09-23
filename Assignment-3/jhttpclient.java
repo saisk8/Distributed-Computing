@@ -11,9 +11,11 @@ public class jhttpclient {
         DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
         BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         request = "GET /";
+        System.out.print("Enter the file you want to GET: ");
         request += inFromUser.readLine();
-        outToServer.writeBytes(request + '\n');
-        System.out.println("Reply from server:");
+        request += " HTTP/1.1";
+        outToServer.writeBytes(request + "\n\n");
+        System.out.println("Reply from server(the file contents):\n");
         while ((response = inFromServer.readLine()) != null) {
             System.out.println(response);
         }
