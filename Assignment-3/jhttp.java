@@ -62,7 +62,9 @@ public class jhttp extends Thread {
       PrintWriter os = new PrintWriter(theConnection.getOutputStream());
       BufferedReader is = new BufferedReader (new
                            InputStreamReader(theConnection.getInputStream()));
+      System.out.println(1);
       String get = is.readLine();
+      System.out.println(2);
       StringTokenizer st = new StringTokenizer(get);
       method = st.nextToken();
       if (method.equals("GET")) {
@@ -73,11 +75,11 @@ public class jhttp extends Thread {
           version = st.nextToken();
         }
         // loop through the rest of the input lines 
-        
-        // while ((get = is.readLine()) != null) {
-        //   if (get.trim().equals("")) break;        
-        // }
-
+        System.out.println(3);
+        while ((get = is.readLine()) != null) {
+          if (get.trim().equals("")) break;        
+        }
+        System.out.println(4);
         try {
           theFile = new File(docroot, file.substring(1,file.length()));
           // FileInputStream fis = new FileInputStream(theFile);
