@@ -74,9 +74,9 @@ public class jhttp extends Thread {
         }
         // loop through the rest of the input lines 
         
-        while ((get = is.readLine()) != null) {
-          if (get.trim().equals("")) break;        
-        }
+        // while ((get = is.readLine()) != null) {
+        //   if (get.trim().equals("")) break;        
+        // }
 
         try {
           theFile = new File(docroot, file.substring(1,file.length()));
